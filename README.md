@@ -7,6 +7,21 @@ docx-preview - every parser in this extension is written from scratch on top of
 Node's own `zlib` and `crypto`. Nothing is downloaded, nothing is uploaded, and
 the webview has no network access at all.
 
+## Install
+
+Not on the Marketplace yet. Build the `.vsix` yourself:
+
+```bash
+git clone https://github.com/nlabs-vscode-extensions/doc-viewer.git
+cd doc-viewer
+pnpm install
+pnpm run package
+code --install-extension nlabs-doc-viewer-0.1.0.vsix
+```
+
+Then open any PDF, `.docx` or `.xlsx` - the viewer takes over automatically. CSV and TSV
+keep the text editor as their default; use **Open With...** to preview them instead.
+
 ## Supported formats
 
 | Format | Extensions | What you get |
@@ -37,7 +52,6 @@ Scanned PDFs with no text layer are detected and their page images are shown.
 - **Extract text** - writes a `.txt` next to the document and opens it.
 - Find-in-document with match navigation, zoom, page-colour picker (paper / sepia / auto / editor).
 - Sidebar with outline, embedded images, document metadata and an About panel.
-- Sidebar tabs for bookmarks, embedded images and document metadata.
 - Four UI languages: English, Turkish, German, French (`nlabsDoc.language`).
 - Remembers scroll position, zoom and active sheet per file.
 
