@@ -1,0 +1,3 @@
+# Depoda satir sonu her zaman LF; calisma kopyasinda platformun kendi bicimi.
+* text=auto eol=lf
+*.png binary

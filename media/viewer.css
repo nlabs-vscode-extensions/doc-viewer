@@ -1,0 +1,333 @@
+/* nLabs Document Viewer - webview stilleri.
+   Renkler VS Code tema degiskenlerinden gelir; "paper" modunda belge alani
+   temadan bagimsiz beyaz kagit gibi gorunur. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--vscode-foreground);
+  background: var(--vscode-editor-background);
+  overflow: hidden;
+}
+
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* ---------- Arac cubugu ---------- */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--vscode-panel-border);
+  background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background));
+}
+
+.toolbar .spacer { flex: 1; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--vscode-foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--vscode-toolbar-hoverBackground, rgba(128,128,128,0.2)); }
+.btn:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.btn.active { background: var(--vscode-toolbar-activeBackground, rgba(128,128,128,0.3)); }
+.btn[disabled] { opacity: .4; cursor: default; }
+
+.find {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px;
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 3px;
+  background: var(--vscode-input-background);
+}
+.find input {
+  width: 180px;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--vscode-input-foreground);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+.find .count { font-size: 11px; color: var(--vscode-descriptionForeground); min-width: 54px; text-align: right; }
+
+.zoom-level { font-size: 11px; color: var(--vscode-descriptionForeground); min-width: 38px; text-align: center; }
+
+/* ---------- Govde ---------- */
+
+.body { display: flex; flex: 1; min-height: 0; }
+
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--vscode-panel-border);
+  background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  overflow: hidden;
+}
+.sidebar.hidden { display: none; }
+.sidebar-tabs { display: flex; border-bottom: 1px solid var(--vscode-panel-border); }
+.sidebar-tab {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 11px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--vscode-descriptionForeground);
+  border-bottom: 2px solid transparent;
+  user-select: none;
+}
+.sidebar-tab:hover { color: var(--vscode-foreground); }
+.sidebar-tab.active { color: var(--vscode-foreground); border-bottom-color: var(--vscode-focusBorder); }
+.sidebar-panel { flex: 1; overflow: auto; padding: 6px; }
+.sidebar-empty { padding: 12px 8px; font-size: 12px; color: var(--vscode-descriptionForeground); }
+
+.outline-item { padding: 3px 6px; font-size: 12px; cursor: pointer; border-radius: 3px; }
+.outline-item:hover { background: var(--vscode-list-hoverBackground); }
+.outline-children { margin-left: 10px; border-left: 1px solid var(--vscode-panel-border); }
+
+.thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 6px; }
+.thumb { border: 1px solid var(--vscode-panel-border); border-radius: 3px; padding: 3px; cursor: pointer; background: #ffffff; }
+.thumb img { width: 100%; height: 66px; object-fit: contain; display: block; }
+.thumb:hover { border-color: var(--vscode-focusBorder); }
+
+.info-row { display: flex; gap: 8px; padding: 3px 6px; font-size: 12px; }
+.info-key { color: var(--vscode-descriptionForeground); min-width: 78px; flex-shrink: 0; }
+.info-value { word-break: break-word; }
+
+/* ---------- Icerik alani ---------- */
+
+.content { flex: 1; overflow: auto; padding: 16px; }
+.content.paper { background: #f0f0f0; }
+
+.notice {
+  margin: 0 auto 12px;
+  max-width: 900px;
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 3px;
+  color: var(--vscode-descriptionForeground);
+  background: var(--vscode-textBlockQuote-background, rgba(128,128,128,0.12));
+  border-left: 2px solid var(--vscode-textBlockQuote-border, var(--vscode-panel-border));
+}
+.notice.warning { color: var(--vscode-inputValidation-warningForeground, var(--vscode-foreground)); }
+.notice ul { margin: 4px 0 0 16px; }
+
+/* Kagit yuzeyi: Word ve PDF sayfalari */
+.sheetpage, .page {
+  position: relative;
+  margin: 0 auto 18px;
+  background: var(--doc-bg);
+  color: var(--doc-fg);
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  border: 1px solid rgba(128,128,128,.25);
+  border-radius: 2px;
+}
+
+.doc {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 48px;
+  line-height: 1.5;
+  background: var(--doc-bg);
+  color: var(--doc-fg);
+  box-shadow: 0 2px 10px rgba(0,0,0,.35);
+  border: 1px solid rgba(128,128,128,.25);
+  border-radius: 2px;
+}
+
+.doc h1, .doc h2, .doc h3, .doc h4, .doc h5, .doc h6 { margin: 1.1em 0 .5em; line-height: 1.25; }
+.doc h1 { font-size: 1.7em; }
+.doc h2 { font-size: 1.4em; }
+.doc h3 { font-size: 1.2em; }
+.doc h4, .doc h5, .doc h6 { font-size: 1.05em; }
+.doc p { margin: 0 0 .6em; }
+.doc p.list { display: flex; gap: .5em; }
+.doc p.list .marker { flex-shrink: 0; color: var(--doc-muted, inherit); }
+.doc hr { border: none; border-top: 1px solid rgba(128,128,128,.4); margin: 1em 0; }
+.doc img { max-width: 100%; height: auto; display: block; margin: .8em auto; }
+.doc .pagebreak { border-top: 1px dashed rgba(128,128,128,.5); margin: 1.4em 0; }
+
+.doc table { border-collapse: collapse; margin: .8em 0; width: 100%; }
+.doc td, .doc th { border: 1px solid rgba(128,128,128,.45); padding: 4px 7px; vertical-align: top; font-size: .95em; }
+.doc th { background: rgba(128,128,128,.12); font-weight: 600; text-align: left; }
+
+.run-mono { font-family: var(--vscode-editor-font-family); }
+.run-sup { vertical-align: super; font-size: .8em; }
+.run-sub { vertical-align: sub; font-size: .8em; }
+.run-link { text-decoration: underline; text-decoration-style: dotted; }
+
+/* ---------- PDF sayfalari ---------- */
+
+.page { overflow: hidden; }
+.page-label {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  padding: 1px 5px;
+  font-size: 10px;
+  border-radius: 2px;
+  color: var(--doc-muted, inherit);
+  background: rgba(128,128,128,.14);
+  pointer-events: none;
+  z-index: 2;
+}
+.page.columns .line { position: absolute; white-space: pre; transform-origin: 0 0; }
+.page.reading { padding: 36px 44px; }
+.page.reading .line { position: static; display: block; white-space: pre-wrap; margin-bottom: .25em; }
+.page-images { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; }
+.page-images img { max-width: 100%; max-height: 420px; object-fit: contain; }
+.page-empty { padding: 24px; text-align: center; font-size: 12px; color: var(--doc-muted, inherit); }
+
+/* ---------- Tablo (Excel / CSV) ---------- */
+
+.sheet-tabs { display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: 8px; }
+.sheet-tab {
+  padding: 3px 10px;
+  font-size: 12px;
+  border: 1px solid var(--vscode-panel-border);
+  border-radius: 3px 3px 0 0;
+  cursor: pointer;
+  background: var(--vscode-editorGroupHeader-tabsBackground, transparent);
+  user-select: none;
+}
+.sheet-tab.active { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
+
+.grid-wrap { overflow: auto; border: 1px solid var(--vscode-panel-border); background: var(--doc-bg); }
+table.grid { border-collapse: collapse; font-size: 12px; color: var(--doc-fg); }
+table.grid th, table.grid td {
+  border: 1px solid rgba(128,128,128,.35);
+  padding: 2px 7px;
+  white-space: nowrap;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+table.grid thead th, table.grid tbody th.rowhead {
+  position: sticky;
+  background: var(--vscode-editorGroupHeader-tabsBackground, #e8e8e8);
+  color: var(--vscode-foreground);
+  font-weight: 600;
+  text-align: center;
+  z-index: 1;
+}
+table.grid thead th { top: 0; }
+table.grid tbody th.rowhead { left: 0; z-index: 0; }
+table.grid td.n { text-align: right; font-variant-numeric: tabular-nums; }
+table.grid td.c { text-align: center; }
+table.grid td.header-cell { font-weight: 600; background: rgba(128,128,128,.12); }
+table.grid td.formula::after { content: "fx"; float: right; margin-left: 6px; font-size: 9px; opacity: .5; }
+
+/* ---------- Durumlar ---------- */
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 100%;
+  padding: 32px;
+  text-align: center;
+  color: var(--vscode-descriptionForeground);
+}
+.state h2 { font-size: 15px; font-weight: 600; color: var(--vscode-foreground); }
+.state p { font-size: 12px; max-width: 520px; line-height: 1.5; }
+.state .actions { display: flex; gap: 8px; margin-top: 4px; }
+.state .btn { border-color: var(--vscode-panel-border); }
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--vscode-panel-border);
+  border-top-color: var(--vscode-focusBorder);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+mark.hit { background: var(--vscode-editor-findMatchHighlightBackground, #ffd54f); color: inherit; }
+mark.hit.current { background: var(--vscode-editor-findMatchBackground, #ff9800); }
+
+/* ---------- sayfa rengi secici ---------- */
+.menu {
+  position: fixed;
+  z-index: 40;
+  min-width: 190px;
+  padding: 4px;
+  background: var(--vscode-menu-background, var(--vscode-editorWidget-background));
+  color: var(--vscode-menu-foreground, var(--vscode-editorWidget-foreground));
+  border: 1px solid var(--vscode-menu-border, var(--vscode-widget-border, rgba(128,128,128,.35)));
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.4);
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  user-select: none;
+}
+.menu-item:hover {
+  background: var(--vscode-menu-selectionBackground, var(--vscode-list-hoverBackground));
+  color: var(--vscode-menu-selectionForeground, inherit);
+}
+.menu-check { width: 12px; flex-shrink: 0; font-size: 11px; }
+.menu-swatch {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 1px solid rgba(128,128,128,.5);
+  border-radius: 3px;
+}
+.swatch-paper { background: #ffffff; }
+.swatch-sepia { background: #f6ecd9; }
+.swatch-auto { background: linear-gradient(135deg, #ffffff 50%, #2d2d30 50%); }
+.swatch-editor { background: var(--vscode-editor-background); }
+
+/* ---------- hakkinda ---------- */
+.about { padding: 10px 12px; }
+.about-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.about .info-row { padding: 3px 0; }
+.about-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--vscode-panel-border);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--vscode-descriptionForeground);
+}
+.about-btn { margin-top: 10px; width: 100%; justify-content: center; }
+.info-value.link {
+  color: var(--vscode-textLink-foreground);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.info-value.link:hover { color: var(--vscode-textLink-activeForeground); }

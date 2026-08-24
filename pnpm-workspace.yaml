@@ -1,0 +1,6 @@
+# @vscode/vsce'nin kendi bagimliliklari; yalnizca paketleme/yayinlama sirasinda
+# calisirlar. pnpm varsayilan olarak kurulum betiklerini engelledigi icin
+# acikca izin veriliyor.
+allowBuilds:
+  '@vscode/vsce-sign': true
+  keytar: true

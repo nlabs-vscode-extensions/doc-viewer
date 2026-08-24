@@ -1,0 +1,327 @@
+{
+  "name": "nlabs-doc-viewer",
+  "displayName": "nLabs Document Viewer",
+  "description": "Preview PDF, Word, Excel and CSV documents inside VS Code. Zero runtime dependencies, no network access, no telemetry.",
+  "version": "0.1.0",
+  "publisher": "nlabs",
+  "icon": "images/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nlabs-vscode-extensions/doc-viewer"
+  },
+  "engines": {
+    "vscode": "^1.118.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "pdf",
+    "word",
+    "docx",
+    "excel",
+    "xlsx",
+    "csv",
+    "viewer",
+    "preview",
+    "nlabs"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true,
+      "description": "Documents are parsed in the extension host and rendered in a sandboxed webview with no network access."
+    },
+    "virtualWorkspaces": true
+  },
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "nlabs.docViewer.pdf",
+        "displayName": "nLabs Document Viewer",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.pdf"
+          }
+        ]
+      },
+      {
+        "viewType": "nlabs.docViewer.word",
+        "displayName": "nLabs Document Viewer",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.docx"
+          },
+          {
+            "filenamePattern": "*.dotx"
+          },
+          {
+            "filenamePattern": "*.docm"
+          }
+        ]
+      },
+      {
+        "viewType": "nlabs.docViewer.sheet",
+        "displayName": "nLabs Document Viewer",
+        "priority": "default",
+        "selector": [
+          {
+            "filenamePattern": "*.xlsx"
+          },
+          {
+            "filenamePattern": "*.xlsm"
+          },
+          {
+            "filenamePattern": "*.xltx"
+          }
+        ]
+      },
+      {
+        "viewType": "nlabs.docViewer.csv",
+        "displayName": "nLabs Document Viewer",
+        "priority": "option",
+        "selector": [
+          {
+            "filenamePattern": "*.csv"
+          },
+          {
+            "filenamePattern": "*.tsv"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "nlabs-doc.open",
+        "title": "Open Document Preview",
+        "category": "nLabs",
+        "icon": "$(file)"
+      },
+      {
+        "command": "nlabs-doc.reload",
+        "title": "Reload Document",
+        "category": "nLabs",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "nlabs-doc.openInDefaultApp",
+        "title": "Open In System App",
+        "category": "nLabs",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "nlabs-doc.extractImages",
+        "title": "Extract Embedded Images",
+        "category": "nLabs",
+        "icon": "$(file-media)"
+      },
+      {
+        "command": "nlabs-doc.extractText",
+        "title": "Extract Text",
+        "category": "nLabs",
+        "icon": "$(output)"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "nlabs-doc.open",
+          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx|csv|tsv)$/i",
+          "group": "navigation@20"
+        },
+        {
+          "command": "nlabs-doc.extractImages",
+          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx)$/i",
+          "group": "7_modification@20"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "nlabs-doc.reload",
+          "when": "nlabsDoc.viewerFocused"
+        },
+        {
+          "command": "nlabs-doc.openInDefaultApp",
+          "when": "nlabsDoc.viewerFocused"
+        },
+        {
+          "command": "nlabs-doc.extractImages",
+          "when": "nlabsDoc.viewerFocused"
+        },
+        {
+          "command": "nlabs-doc.extractText",
+          "when": "nlabsDoc.viewerFocused"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "nlabs-doc.extractImages",
+          "when": "nlabsDoc.viewerFocused",
+          "group": "navigation@1"
+        },
+        {
+          "command": "nlabs-doc.reload",
+          "when": "nlabsDoc.viewerFocused",
+          "group": "navigation@2"
+        },
+        {
+          "command": "nlabs-doc.openInDefaultApp",
+          "when": "nlabsDoc.viewerFocused",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "nLabs Document Viewer",
+      "properties": {
+        "nlabsDoc.language": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "tr",
+            "en",
+            "de",
+            "fr"
+          ],
+          "enumDescriptions": [
+            "Auto-detect from VS Code locale",
+            "Turkce",
+            "English",
+            "Deutsch",
+            "Francais"
+          ],
+          "description": "Display language",
+          "order": 1
+        },
+        "nlabsDoc.theme": {
+          "type": "string",
+          "default": "paper",
+          "enum": [
+            "paper",
+            "sepia",
+            "auto",
+            "editor"
+          ],
+          "enumDescriptions": [
+            "White page in every theme",
+            "Warm sepia page, easier on the eyes for long reading",
+            "White page in light themes, a dim surface in dark themes",
+            "Use the editor background"
+          ],
+          "description": "Page colour. The viewer toolbar has a picker that writes back to this setting.",
+          "order": 2
+        },
+        "nlabsDoc.maxFileSizeMb": {
+          "type": "number",
+          "default": 100,
+          "minimum": 1,
+          "maximum": 2048,
+          "description": "Refuse to open documents larger than this (MB). Guards against memory exhaustion.",
+          "order": 10
+        },
+        "nlabsDoc.zip.maxUncompressedMb": {
+          "type": "number",
+          "default": 512,
+          "minimum": 1,
+          "maximum": 4096,
+          "description": "Zip-bomb guard: total uncompressed size allowed when reading an Office (OOXML) container.",
+          "order": 11
+        },
+        "nlabsDoc.zip.maxCompressionRatio": {
+          "type": "number",
+          "default": 200,
+          "minimum": 10,
+          "maximum": 10000,
+          "description": "Zip-bomb guard: reject a container entry whose uncompressed/compressed ratio exceeds this.",
+          "order": 12
+        },
+        "nlabsDoc.sheet.maxRows": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 100,
+          "maximum": 200000,
+          "description": "Maximum rows rendered per spreadsheet sheet",
+          "order": 20
+        },
+        "nlabsDoc.sheet.maxColumns": {
+          "type": "number",
+          "default": 200,
+          "minimum": 10,
+          "maximum": 16384,
+          "description": "Maximum columns rendered per spreadsheet sheet",
+          "order": 21
+        },
+        "nlabsDoc.csv.delimiter": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "comma",
+            "semicolon",
+            "tab",
+            "pipe"
+          ],
+          "enumDescriptions": [
+            "Detect from the first lines",
+            "Comma ,",
+            "Semicolon ;",
+            "Tab",
+            "Pipe |"
+          ],
+          "description": "Field delimiter for CSV/TSV files",
+          "order": 22
+        },
+        "nlabsDoc.showImages": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render images embedded in the document",
+          "order": 30
+        },
+        "nlabsDoc.pdf.textLayout": {
+          "type": "string",
+          "default": "columns",
+          "enum": [
+            "columns",
+            "reading"
+          ],
+          "enumDescriptions": [
+            "Keep on-page line and column positions",
+            "Reflow into a single reading column"
+          ],
+          "description": "How extracted PDF text is laid out. PDF pages are shown as text plus embedded images, not as a pixel-accurate page rendering.",
+          "order": 31
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "nlabs-doc.reload",
+        "key": "ctrl+r",
+        "mac": "cmd+r",
+        "when": "nlabsDoc.viewerFocused && webviewFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "icon": "node scripts/make-icon.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "render-check": "node scripts/render-check.mjs",
+    "vscode:prepublish": "pnpm run compile",
+    "package": "vsce package --no-dependencies",
+    "publish": "vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.40",
+    "@types/vscode": "^1.118.0",
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^5.9.3"
+  }
+}
