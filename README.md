@@ -9,14 +9,22 @@ the webview has no network access at all.
 
 ## Install
 
-Not on the Marketplace yet. Build the `.vsix` yourself:
+From the Visual Studio Marketplace:
+
+```bash
+code --install-extension nlabs.nlabs-doc-viewer
+```
+
+Or search for **nLabs Document Viewer** in the Extensions view.
+
+Or build the `.vsix` yourself:
 
 ```bash
 git clone https://github.com/nlabs-vscode-extensions/doc-viewer.git
 cd doc-viewer
 pnpm install
 pnpm run package
-code --install-extension nlabs-doc-viewer-0.1.0.vsix
+code --install-extension nlabs-doc-viewer-0.2.0.vsix
 ```
 
 Then open any PDF, `.docx` or `.xlsx` - the viewer takes over automatically.
