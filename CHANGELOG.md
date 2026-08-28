@@ -5,6 +5,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [0.1.0] - 2026-08-24
 
+### Formats
+
+- **Markdown** (`.md`, `.markdown`, `.mdown`): headings, lists, GFM tables, fenced and indented
+  code, blockquotes, inline formatting, links, YAML front matter, and relative images loaded from
+  the document's own folder. Raw HTML is shown as literal text, never interpreted.
+- **JSONL / NDJSON** (`.jsonl`, `.ndjson`): one collapsible JSON tree per record with a generated
+  summary line. Malformed lines are reported instead of failing the file. Oversized files are read
+  as a prefix rather than refused.
+- Both open through **right-click / Open With**, not on plain click, so the text editor stays the
+  default for files you may want to edit.
+
 First release.
 
 ### Added

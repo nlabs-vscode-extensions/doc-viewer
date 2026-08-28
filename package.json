@@ -1,7 +1,7 @@
 {
   "name": "nlabs-doc-viewer",
   "displayName": "nLabs Document Viewer",
-  "description": "Preview PDF, Word, Excel and CSV documents inside VS Code. Zero runtime dependencies, no network access, no telemetry.",
+  "description": "Preview PDF, Word, Excel, CSV, Markdown and JSONL documents inside VS Code. Zero runtime dependencies, no network access, no telemetry.",
   "version": "0.1.0",
   "publisher": "nlabs",
   "icon": "images/icon.png",
@@ -26,7 +26,12 @@
     "csv",
     "viewer",
     "preview",
-    "nlabs"
+    "nlabs",
+    "markdown",
+    "md",
+    "jsonl",
+    "ndjson",
+    "json"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -93,6 +98,35 @@
             "filenamePattern": "*.tsv"
           }
         ]
+      },
+      {
+        "viewType": "nlabs.docViewer.markdown",
+        "displayName": "nLabs Document Viewer",
+        "priority": "option",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          },
+          {
+            "filenamePattern": "*.mdown"
+          }
+        ]
+      },
+      {
+        "viewType": "nlabs.docViewer.jsonl",
+        "displayName": "nLabs Document Viewer",
+        "priority": "option",
+        "selector": [
+          {
+            "filenamePattern": "*.jsonl"
+          },
+          {
+            "filenamePattern": "*.ndjson"
+          }
+        ]
       }
     ],
     "commands": [
@@ -131,12 +165,12 @@
       "explorer/context": [
         {
           "command": "nlabs-doc.open",
-          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx|csv|tsv)$/i",
+          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx|csv|tsv|md|markdown|mdown|jsonl|ndjson)$/i",
           "group": "navigation@20"
         },
         {
           "command": "nlabs-doc.extractImages",
-          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx)$/i",
+          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx|md|markdown|mdown)$/i",
           "group": "7_modification@20"
         }
       ],

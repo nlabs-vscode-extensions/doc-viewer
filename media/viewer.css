@@ -331,3 +331,90 @@ mark.hit.current { background: var(--vscode-editor-findMatchBackground, #ff9800)
   text-underline-offset: 2px;
 }
 .info-value.link:hover { color: var(--vscode-textLink-activeForeground); }
+
+/* ---------- Markdown: kod, alinti, satir ici gorsel ---------- */
+.doc pre.code {
+  position: relative;
+  margin: .8em 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border: 1px solid rgba(128,128,128,.3);
+  border-radius: 4px;
+  background: rgba(128,128,128,.1);
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: .88em;
+  line-height: 1.45;
+}
+.doc pre.code code { white-space: pre; }
+.code-lang {
+  position: absolute;
+  top: 0;
+  right: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--doc-muted, inherit);
+  opacity: .8;
+}
+.doc blockquote {
+  margin: .8em 0;
+  padding: .2em 0 .2em 1em;
+  border-left: 3px solid rgba(128,128,128,.45);
+  color: var(--doc-muted, inherit);
+}
+.doc blockquote p:last-child { margin-bottom: 0; }
+.run-img { max-width: 100%; height: auto; vertical-align: middle; border-radius: 2px; }
+
+/* ---------- JSONL ---------- */
+.records { max-width: 1100px; margin: 0 auto; }
+.record {
+  margin-bottom: 4px;
+  border: 1px solid rgba(128,128,128,.25);
+  border-radius: 4px;
+  background: var(--doc-bg);
+  color: var(--doc-fg);
+  overflow: hidden;
+}
+.record-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 9px;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+}
+.record-head:hover { background: rgba(128,128,128,.12); }
+.record-index {
+  flex-shrink: 0;
+  min-width: 42px;
+  font-family: var(--vscode-editor-font-family, monospace);
+  font-size: 11px;
+  color: var(--doc-muted, inherit);
+  text-align: right;
+}
+.record-summary {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--vscode-editor-font-family, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.record-body { padding: 2px 10px 8px 34px; }
+.record-body.hidden, .json-children.hidden { display: none; }
+
+.caret { flex-shrink: 0; width: 10px; font-size: 10px; color: var(--doc-muted, inherit); }
+.json-branch { font-family: var(--vscode-editor-font-family, monospace); font-size: 12px; line-height: 1.6; }
+.json-row { display: block; }
+.json-head { display: flex; align-items: baseline; gap: 6px; cursor: pointer; user-select: none; }
+.json-head:hover { background: rgba(128,128,128,.12); }
+.json-children { padding-left: 16px; border-left: 1px dotted rgba(128,128,128,.35); margin-left: 4px; }
+.json-key { color: var(--json-key); margin-right: 6px; }
+.json-index { color: var(--doc-muted, inherit); margin-right: 6px; }
+.json-meta { color: var(--doc-muted, inherit); font-size: 11px; }
+.json-string { color: var(--json-string); white-space: pre-wrap; word-break: break-word; }
+.json-number { color: var(--json-number); }
+.json-bool { color: var(--json-bool); }
+.json-null { color: var(--doc-muted, inherit); font-style: italic; }

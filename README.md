@@ -1,6 +1,6 @@
 # nLabs Document Viewer
 
-Preview **PDF**, **Word**, **Excel** and **CSV** documents without leaving VS Code.
+Preview **PDF**, **Word**, **Excel**, **CSV**, **Markdown** and **JSONL** documents without leaving VS Code.
 
 Built on a single rule: **zero runtime dependencies**. No PDF.js, no SheetJS, no
 docx-preview - every parser in this extension is written from scratch on top of
@@ -19,8 +19,11 @@ pnpm run package
 code --install-extension nlabs-doc-viewer-0.1.0.vsix
 ```
 
-Then open any PDF, `.docx` or `.xlsx` - the viewer takes over automatically. CSV and TSV
-keep the text editor as their default; use **Open With...** to preview them instead.
+Then open any PDF, `.docx` or `.xlsx` - the viewer takes over automatically.
+
+**Text-editable formats keep the text editor as their default.** CSV, TSV, Markdown and JSONL
+are files you may want to *edit*, so clicking one opens the normal editor. To preview them,
+right-click the file and choose **nLabs: Open Document Preview**, or use **Open With...**.
 
 ## Supported formats
 
@@ -30,6 +33,22 @@ keep the text editor as their default; use **Open With...** to preview them inst
 | Word | `.docx` `.dotx` `.docm` | Headings, lists, tables, formatting, embedded images |
 | Excel | `.xlsx` `.xlsm` `.xltx` | Sheets, merged cells, number/date formats, cell styling |
 | CSV | `.csv` `.tsv` | Auto-detected delimiter and encoding, header detection |
+| Markdown | `.md` `.markdown` `.mdown` | Headings, lists, tables, code blocks, quotes, front matter, local images |
+| JSONL | `.jsonl` `.ndjson` | One collapsible JSON tree per record, with a summary line |
+
+## Markdown and JSONL
+
+**Markdown** is rendered onto the same page surface as every other format, so the page-colour
+picker, find, zoom and text extraction all work the same way. Raw HTML inside a Markdown file is
+shown as literal text, never interpreted - this viewer has no HTML rendering path at all.
+Images referenced with a relative path are loaded from disk, but only from inside the document's
+own folder; `..`, absolute paths and remote URLs are refused.
+
+**JSONL / NDJSON** is shown as one collapsible record per line. Each record gets a summary line
+built from whichever of `type`, `role`, `event`, `level`... it actually has, so a log or an
+agent transcript is scannable without expanding anything. Malformed lines do not fail the file;
+their line numbers are reported as a warning. Very large files are read as a prefix rather than
+refused - a 500 MB transcript opens showing its first records.
 
 ## About PDF rendering
 

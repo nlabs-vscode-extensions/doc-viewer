@@ -13,6 +13,8 @@ export type LangCode = 'tr' | 'en' | 'de' | 'fr';
 export type Strings = Record<string, string>;
 
 const EN: Strings = {
+    warnPrefixRead: 'File is {1} MB; only the first {0} MB were read. Raise nlabsDoc.maxFileSizeMb to read more.',
+    recordsTruncated: 'Showing {0} of {1} records. Raise nlabsDoc.sheet.maxRows to load more.',
     pageTint: 'Page colour',
     themePaper: 'Paper',
     themeSepia: 'Sepia',
@@ -70,6 +72,8 @@ const EN: Strings = {
 };
 
 const TR: Strings = {
+    warnPrefixRead: 'Dosya {1} MB; yaln\u0131zca ilk {0} MB okundu. Daha fazlas\u0131 i\u00e7in nlabsDoc.maxFileSizeMb ayar\u0131n\u0131 y\u00fckseltin.',
+    recordsTruncated: '{1} kayd\u0131n {0} tanesi g\u00f6steriliyor. Daha fazlas\u0131 i\u00e7in nlabsDoc.sheet.maxRows ayar\u0131n\u0131 y\u00fckseltin.',
     pageTint: 'Sayfa rengi',
     themePaper: 'K\u00e2\u011f\u0131t',
     themeSepia: 'Sepya',
@@ -127,6 +131,8 @@ const TR: Strings = {
 };
 
 const DE: Strings = {
+    warnPrefixRead: 'Datei ist {1} MB; nur die ersten {0} MB wurden gelesen. Erh\u00f6hen Sie nlabsDoc.maxFileSizeMb.',
+    recordsTruncated: '{0} von {1} Datens\u00e4tzen. Erh\u00f6hen Sie nlabsDoc.sheet.maxRows.',
     pageTint: 'Seitenfarbe',
     themePaper: 'Papier',
     themeSepia: 'Sepia',
@@ -184,6 +190,8 @@ const DE: Strings = {
 };
 
 const FR: Strings = {
+    warnPrefixRead: 'Fichier de {1} Mo ; seuls les {0} premiers Mo ont \u00e9t\u00e9 lus. Augmentez nlabsDoc.maxFileSizeMb.',
+    recordsTruncated: 'Affichage de {0} enregistrements sur {1}. Augmentez nlabsDoc.sheet.maxRows.',
     pageTint: 'Couleur de page',
     themePaper: 'Papier',
     themeSepia: 'S\u00e9pia',

@@ -74,6 +74,10 @@ for (const file of files) {
         if (model.sheets) {
             parts.push(`sayfa=${model.sheets.length}`, `satir=${model.sheets.reduce((n, s) => n + s.rows.length, 0)}`);
         }
+        if (model.json) {
+            parts.push(`kayit=${model.json.records.length}/${model.json.totalRecords}`);
+            if (model.json.invalidLines.length) { parts.push(`bozuk=${model.json.invalidLines.length}`); }
+        }
         parts.push(`gorsel=${model.images.length}`);
         if (model.outline?.length) { parts.push(`outline=${model.outline.length}`); }
         if (model.warnings.length) { parts.push(`uyari=${model.warnings.length}`); }

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
+import * as fs from 'node:fs';
 import { maxFileSizeBytes, onSettingsChanged, readParseLimits, readViewerSettings } from '../core/config';
 import { webviewHtml } from '../core/html';
 import { bundle, t } from '../core/i18n';
@@ -138,19 +139,33 @@ export class DocumentViewerProvider implements vscode.CustomReadonlyEditorProvid
         try {
             const stat = await vscode.workspace.fs.stat(viewer.uri);
             const limit = maxFileSizeBytes(viewer.uri);
+            const extension = path.extname(viewer.uri.fsPath).toLowerCase();
+            const lineOriented = extension === '.jsonl' || extension === '.ndjson';
+
+            // Satir tabanli bicimlerde buyuk dosya reddedilmez: bastan bir dilim okunur.
+            // Boylece yuz megabaytlik bir gunluk dosyasi da acilir, ilk kayitlari gorunur.
+            let prefixBytes: number | undefined;
             if (stat.size > limit) {
-                throw new DocumentError(t('errorTooLarge', mb(stat.size), mb(limit)));
+                if (!lineOriented) {
+                    throw new DocumentError(t('errorTooLarge', mb(stat.size), mb(limit)));
+                }
+                prefixBytes = limit;
             }
 
-            const bytes = await vscode.workspace.fs.readFile(viewer.uri);
-            const extension = path.extname(viewer.uri.fsPath).toLowerCase();
+            const bytes = prefixBytes !== undefined
+                ? readPrefix(viewer.uri, prefixBytes)
+                : await vscode.workspace.fs.readFile(viewer.uri);
             const model = parseDocument(
                 Buffer.from(bytes),
                 path.basename(viewer.uri.fsPath),
                 extension,
-                readParseLimits(viewer.uri)
+                readParseLimits(viewer.uri),
+                assetReader(viewer.uri)
             );
 
+            if (prefixBytes !== undefined) {
+                model.warnings.unshift(t('warnPrefixRead', mb(prefixBytes), mb(stat.size)));
+            }
             viewer.model = model;
             post({
                 type: 'document',
@@ -227,6 +242,49 @@ export class DocumentViewerProvider implements vscode.CustomReadonlyEditorProvid
             } satisfies OutboundMessage);
         }
     }
+}
+
+/**
+ * Markdown'in basvurdugu goreli gorselleri okur.
+ *
+ * Yalniz `file` semasinda calisir (sanal calisma alaninda gorseller atlanir) ve
+ * yalniz belgenin kendi klasoru altindan okur - cozulen yol o klasorun disina
+ * cikiyorsa istek reddedilir.
+ */
+/**
+ * Dosyanin ilk `limit` baytini okur ve yarim kalan son satiri atar.
+ *
+ * Yalniz satir tabanli bicimler icin kullanilir; yarim bir JSON satiri
+ * ayristirilamaz hata uretecegi icin bilerek kesilir.
+ */
+function readPrefix(uri: vscode.Uri, limit: number): Buffer {
+    const handle = fs.openSync(uri.fsPath, 'r');
+    try {
+        const buffer = Buffer.alloc(limit);
+        const read = fs.readSync(handle, buffer, 0, limit, 0);
+        const slice = buffer.subarray(0, read);
+        const lastNewline = slice.lastIndexOf(0x0a);
+        return lastNewline > 0 ? slice.subarray(0, lastNewline) : slice;
+    } finally {
+        fs.closeSync(handle);
+    }
+}
+
+function assetReader(uri: vscode.Uri): ((relativePath: string) => Buffer | undefined) | undefined {
+    if (uri.scheme !== 'file') { return undefined; }
+    const base = path.dirname(uri.fsPath);
+    return (relativePath: string) => {
+        try {
+            const target = path.resolve(base, relativePath);
+            const relative = path.relative(base, target);
+            if (relative.startsWith('..') || path.isAbsolute(relative)) { return undefined; }
+            const stat = fs.statSync(target);
+            if (!stat.isFile() || stat.size > 32 * 1024 * 1024) { return undefined; }
+            return fs.readFileSync(target);
+        } catch {
+            return undefined;
+        }
+    };
 }
 
 function stateKey(uri: vscode.Uri): string {

@@ -101,6 +101,19 @@
             || document.body.classList.contains('vscode-high-contrast');
     }
 
+    /** Acik ve koyu yuzeyler icin JSON sozdizimi renkleri. */
+    const SYNTAX = {
+        light: { key: '#9c5d9e', string: '#2a7a4b', number: '#2060c0', bool: '#b06000' },
+        dark: { key: '#d7a3d9', string: '#7fd18f', number: '#79b8ff', bool: '#ffab5e' },
+    };
+
+    function setSyntax(root, set) {
+        root.style.setProperty('--json-key', set.key);
+        root.style.setProperty('--json-string', set.string);
+        root.style.setProperty('--json-number', set.number);
+        root.style.setProperty('--json-bool', set.bool);
+    }
+
     /** Sayfa yuzeyi rengini uygular. Doner deger: zemin notr gri olsun mu. */
     function applyTheme(root) {
         const dark = isDarkHost();
@@ -110,19 +123,23 @@
             root.style.setProperty('--doc-bg', 'var(--vscode-editor-background)');
             root.style.setProperty('--doc-fg', 'var(--vscode-editor-foreground)');
             root.style.setProperty('--doc-muted', 'var(--vscode-descriptionForeground)');
+            setSyntax(root, dark ? SYNTAX.dark : SYNTAX.light);
         } else if (mode === 'sepia') {
             root.style.setProperty('--doc-bg', '#f6ecd9');
             root.style.setProperty('--doc-fg', '#3b2f21');
             root.style.setProperty('--doc-muted', '#7a6a55');
+            setSyntax(root, SYNTAX.light);
         } else if (mode === 'paper' || (mode === 'auto' && !dark)) {
             root.style.setProperty('--doc-bg', '#ffffff');
             root.style.setProperty('--doc-fg', '#1f1f1f');
             root.style.setProperty('--doc-muted', '#6b6b6b');
+            setSyntax(root, SYNTAX.light);
         } else {
             // Koyu yuzey editor arka planindan AYRILMALI, yoksa sayfa siniri kaybolur.
             root.style.setProperty('--doc-bg', '#2d2d30');
             root.style.setProperty('--doc-fg', '#e8e8e8');
             root.style.setProperty('--doc-muted', '#9d9d9d');
+            setSyntax(root, SYNTAX.dark);
         }
         return !dark && mode !== 'editor';
     }
@@ -411,11 +428,12 @@
             ]));
         }
 
-        if (model.pages) { renderPdf(content, model); }
+        if (model.json) { renderJson(content, model); }
+        else if (model.pages) { renderPdf(content, model); }
         else if (model.blocks) { renderWord(content, model); }
         else if (model.sheets) { renderSheets(content, model); }
 
-        if (!content.querySelector('.doc, .page, .grid-wrap')) {
+        if (!content.querySelector('.doc, .page, .grid-wrap, .records')) {
             content.appendChild(el('div', { class: 'state' }, [el('p', { text: t('noContent') })]));
         }
     }
@@ -473,6 +491,17 @@
                 if (block.w) { props.style = { width: Math.round(block.w * state.zoom) + 'px' }; }
                 return el('img', props);
             }
+            case 'code': {
+                const pre = el('pre', { class: 'code' });
+                if (block.lang) { pre.appendChild(el('div', { class: 'code-lang', text: block.lang })); }
+                pre.appendChild(el('code', { text: block.text }));
+                return pre;
+            }
+            case 'quote': {
+                const quote = el('blockquote', {});
+                appendBlocks(quote, block.blocks);
+                return quote;
+            }
             case 'rule':
                 return el('hr');
             case 'pagebreak':
@@ -498,6 +527,19 @@
             if (run.color) { style.color = run.color; }
             if (run.bg) { style.backgroundColor = run.bg; }
             if (run.size) { style.fontSize = run.size + 'pt'; }
+
+            if (run.img) {
+                const image = imageById(run.img);
+                if (image && isRenderable(image.mime) && state.settings.showImages) {
+                    return el('img', {
+                        class: 'run-img',
+                        src: dataUri(image),
+                        alt: run.text || image.name,
+                        title: run.text || image.name,
+                    });
+                }
+                return el('span', { class: 'run-link', text: '[' + (run.text || image && image.name || '') + ']' });
+            }
 
             return el('span', {
                 class: classes.length ? classes.join(' ') : undefined,
@@ -683,6 +725,129 @@
             n = Math.floor((n - 1) / 26);
         }
         return name;
+    }
+
+
+    // ---------- JSONL ----------
+
+    const JSON_RECORD_STEP = 200;
+
+    function renderJson(content, model) {
+        const set = model.json;
+        const wrap = el('div', { class: 'records' });
+        const shown = Math.min(state.rowLimit, set.records.length);
+
+        for (let i = 0; i < shown; i++) {
+            wrap.appendChild(buildRecord(set.records[i], i + 1, set.labelKeys));
+        }
+        content.appendChild(wrap);
+
+        if (shown < set.records.length) {
+            content.appendChild(el('div', { class: 'more' }, [
+                el('button', {
+                    class: 'btn',
+                    text: t('showMoreRows', Math.min(JSON_RECORD_STEP, set.records.length - shown), set.records.length - shown),
+                    onclick: function () { state.rowLimit += JSON_RECORD_STEP; render(); },
+                }),
+            ]));
+        }
+        if (set.truncated) {
+            content.appendChild(el('div', { class: 'notice', text: t('recordsTruncated', set.records.length, set.totalRecords) }));
+        }
+    }
+
+    /** Tek kayit: katlanabilir baslik + JSON agaci. */
+    function buildRecord(value, index, labelKeys) {
+        const box = el('div', { class: 'record' });
+        const summary = summarize(value, labelKeys);
+        const caret = el('span', { class: 'caret', text: '\u25b8' });
+        const body = el('div', { class: 'record-body hidden' });
+
+        const head = el('div', { class: 'record-head' }, [
+            caret,
+            el('span', { class: 'record-index', text: String(index) }),
+            el('span', { class: 'record-summary', text: summary }),
+        ]);
+        head.addEventListener('click', function () {
+            const open = body.classList.toggle('hidden');
+            caret.textContent = open ? '\u25b8' : '\u25be';
+            if (!open && !body.firstChild) { body.appendChild(buildJsonNode(value, 0)); }
+        });
+
+        box.appendChild(head);
+        box.appendChild(body);
+        return box;
+    }
+
+    /** Katli kaydin basliginda gorunecek tek satirlik ozet. */
+    function summarize(value, labelKeys) {
+        if (value === null || typeof value !== 'object') { return String(value); }
+        if (Array.isArray(value)) { return '[' + value.length + ']'; }
+
+        const parts = [];
+        for (const key of labelKeys) {
+            if (value[key] !== undefined && typeof value[key] !== 'object') {
+                parts.push(key + '=' + String(value[key]));
+            }
+        }
+        if (!parts.length) {
+            for (const key of Object.keys(value).slice(0, 3)) {
+                const item = value[key];
+                parts.push(key + '=' + (item === null || typeof item !== 'object' ? String(item) : Array.isArray(item) ? '[...]' : '{...}'));
+            }
+        }
+        const text = parts.join('  ');
+        return text.length > 220 ? text.slice(0, 220) + '...' : text;
+    }
+
+    /** JSON degerini ic ice katlanabilir dugumlere cevirir. */
+    function buildJsonNode(value, depth) {
+        if (value === null) { return el('span', { class: 'json-null', text: 'null' }); }
+        const type = typeof value;
+        if (type === 'string') { return el('span', { class: 'json-string', text: value }); }
+        if (type === 'number') { return el('span', { class: 'json-number', text: String(value) }); }
+        if (type === 'boolean') { return el('span', { class: 'json-bool', text: String(value) }); }
+
+        const isArray = Array.isArray(value);
+        const entries = isArray
+            ? value.map(function (item, i) { return [String(i), item]; })
+            : Object.entries(value);
+
+        if (!entries.length) { return el('span', { class: 'json-null', text: isArray ? '[]' : '{}' }); }
+
+        return el('div', { class: 'json-branch' }, entries.map(function (pair) {
+            const key = pair[0];
+            const item = pair[1];
+            const nested = item !== null && typeof item === 'object';
+            const row = el('div', { class: 'json-row' });
+            const label = el('span', { class: isArray ? 'json-index' : 'json-key', text: key });
+
+            if (!nested) {
+                row.appendChild(label);
+                row.appendChild(buildJsonNode(item, depth + 1));
+                return row;
+            }
+
+            const count = Array.isArray(item) ? item.length : Object.keys(item).length;
+            const caret = el('span', { class: 'caret', text: depth < 1 ? '\u25be' : '\u25b8' });
+            const child = el('div', { class: 'json-children' + (depth < 1 ? '' : ' hidden') });
+            if (depth < 1) { child.appendChild(buildJsonNode(item, depth + 1)); }
+
+            const head = el('div', { class: 'json-head' }, [
+                caret,
+                label,
+                el('span', { class: 'json-meta', text: (Array.isArray(item) ? '[' + count + ']' : '{' + count + '}') }),
+            ]);
+            head.addEventListener('click', function () {
+                const open = child.classList.toggle('hidden');
+                caret.textContent = open ? '\u25b8' : '\u25be';
+                if (!open && !child.firstChild) { child.appendChild(buildJsonNode(item, depth + 1)); }
+            });
+
+            row.appendChild(head);
+            row.appendChild(child);
+            return row;
+        }));
     }
 
     // ---------- arama ----------

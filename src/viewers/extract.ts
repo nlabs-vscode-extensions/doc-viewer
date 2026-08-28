@@ -5,6 +5,8 @@ export function modelToText(model: DocModel): string {
     if (model.pages) { return pdfToText(model); }
     if (model.blocks) { return blocksToText(model.blocks, 0).join('\n'); }
     if (model.sheets) { return model.sheets.map(sheetToText).join('\n\n'); }
+    // JSONL: her kayit tek satir JSON olarak geri yazilir - kaynak bicimle ayni.
+    if (model.json) { return model.json.records.map((record) => JSON.stringify(record)).join('\n'); }
     return '';
 }
 

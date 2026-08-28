@@ -6,13 +6,15 @@
  * yorumlanmaz - bicimlerin tasidigi metin, isaretleme degil veridir.
  */
 
-export type DocKind = 'pdf' | 'word' | 'sheet' | 'csv';
+export type DocKind = 'pdf' | 'word' | 'sheet' | 'csv' | 'markdown' | 'jsonl';
 
 export const VIEW_TYPE: Record<DocKind, string> = {
     pdf: 'nlabs.docViewer.pdf',
     word: 'nlabs.docViewer.word',
     sheet: 'nlabs.docViewer.sheet',
     csv: 'nlabs.docViewer.csv',
+    markdown: 'nlabs.docViewer.markdown',
+    jsonl: 'nlabs.docViewer.jsonl',
 };
 
 /** Uzanti (nokta dahil, kucuk harf) -> belge ailesi. package.json selector'lari ile ayni kume. */
@@ -26,6 +28,11 @@ export const EXTENSION_KIND: Record<string, DocKind> = {
     '.xltx': 'sheet',
     '.csv': 'csv',
     '.tsv': 'csv',
+    '.md': 'markdown',
+    '.markdown': 'markdown',
+    '.mdown': 'markdown',
+    '.jsonl': 'jsonl',
+    '.ndjson': 'jsonl',
 };
 
 export function kindForPath(fsPath: string): DocKind | undefined {
@@ -52,6 +59,8 @@ export interface Run {
     size?: number;
     /** Kopyalanabilir baglanti hedefi; webview onu tiklanabilir yapmaz, yalnizca gosterir. */
     link?: string;
+    /** Satir ici gorsel kimligi (Markdown). Varsa parca metin yerine gorsel cizilir. */
+    img?: string;
 }
 
 export interface ListInfo {
@@ -72,6 +81,8 @@ export type Block =
     | { t: 'para'; runs: Run[]; align?: 'left' | 'center' | 'right' | 'justify'; indent?: number; list?: ListInfo }
     | { t: 'table'; rows: TableCell[][] }
     | { t: 'image'; id: string; w?: number; h?: number; alt?: string }
+    | { t: 'code'; text: string; lang?: string }
+    | { t: 'quote'; blocks: Block[] }
     | { t: 'rule' }
     | { t: 'pagebreak' };
 
@@ -124,6 +135,18 @@ export interface PdfPageModel {
     error?: string;
 }
 
+/** Satir-basina-JSON (JSONL/NDJSON) kayit kumesi. */
+export interface JsonRecordSet {
+    /** Ayristirilmis kayitlar. Webview agaci bunlardan cizer. */
+    records: unknown[];
+    totalRecords: number;
+    truncated: boolean;
+    /** Ayristirilamayan satirlarin 1 tabanli numaralari. */
+    invalidLines: number[];
+    /** Kayitlarda en sik gorulen ust duzey anahtarlar - ozet satiri icin. */
+    labelKeys: string[];
+}
+
 export interface OutlineNode {
     title: string;
     page?: number;
@@ -144,6 +167,8 @@ export interface EmbeddedImage {
     height?: number;
     /** Disari cikarirken kullanilacak dosya adi onerisi. */
     name: string;
+    /** Belgedeki alternatif metin (varsa). */
+    alt?: string;
 }
 
 /** Webview'e gonderilen tam belge modeli. */
@@ -157,6 +182,7 @@ export interface DocModel {
     sheets?: SheetModel[];
     pages?: PdfPageModel[];
     outline?: OutlineNode[];
+    json?: JsonRecordSet;
 }
 
 /** "Hakkinda" panelinde gosterilen uygulama kimligi; package.json'dan okunur. */
