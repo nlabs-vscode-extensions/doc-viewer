@@ -24,7 +24,7 @@ git clone https://github.com/nlabs-vscode-extensions/doc-viewer.git
 cd doc-viewer
 pnpm install
 pnpm run package
-code --install-extension nlabs-doc-viewer-0.2.0.vsix
+code --install-extension nlabs-doc-viewer-0.2.1.vsix
 ```
 
 Then open any PDF, `.docx` or `.xlsx` - the viewer takes over automatically.

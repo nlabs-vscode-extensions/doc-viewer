@@ -2,7 +2,7 @@
   "name": "nlabs-doc-viewer",
   "displayName": "nLabs Document Viewer",
   "description": "Preview PDF, Word, Excel, CSV, Markdown and JSON/JSONL documents inside VS Code. Zero runtime dependencies, no network access, no telemetry.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "nlabs",
   "icon": "images/icon.png",
   "license": "MIT",

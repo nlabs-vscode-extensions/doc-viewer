@@ -3,6 +3,14 @@
 All notable changes to nLabs Document Viewer are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.1] - 2026-08-28
+
+### Fixed
+
+- The published JavaScript no longer carries `sourceMappingURL` comments pointing at map files
+  that are not shipped with the package. Source maps are disabled for the published build only;
+  `pnpm run compile` still produces them for local debugging.
+
 ## [0.2.0] - 2026-08-28
 
 ### Added
