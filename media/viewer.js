@@ -738,7 +738,8 @@
         const shown = Math.min(state.rowLimit, set.records.length);
 
         for (let i = 0; i < shown; i++) {
-            wrap.appendChild(buildRecord(set.records[i], i + 1, set.labelKeys));
+            // Tek kayitli dosya (bir .json belgesi) katli gelmesin.
+            wrap.appendChild(buildRecord(set.records[i], i + 1, set.labelKeys, set.records.length === 1));
         }
         content.appendChild(wrap);
 
@@ -757,11 +758,12 @@
     }
 
     /** Tek kayit: katlanabilir baslik + JSON agaci. */
-    function buildRecord(value, index, labelKeys) {
+    function buildRecord(value, index, labelKeys, expanded) {
         const box = el('div', { class: 'record' });
         const summary = summarize(value, labelKeys);
-        const caret = el('span', { class: 'caret', text: '\u25b8' });
-        const body = el('div', { class: 'record-body hidden' });
+        const caret = el('span', { class: 'caret', text: expanded ? '\u25be' : '\u25b8' });
+        const body = el('div', { class: 'record-body' + (expanded ? '' : ' hidden') });
+        if (expanded) { body.appendChild(buildJsonNode(value, 0)); }
 
         const head = el('div', { class: 'record-head' }, [
             caret,

@@ -10,6 +10,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **Markdown** (`.md`, `.markdown`, `.mdown`): headings, lists, GFM tables, fenced and indented
   code, blockquotes, inline formatting, links, YAML front matter, and relative images loaded from
   the document's own folder. Raw HTML is shown as literal text, never interpreted.
+- **JSON** (`.json`, `.geojson`): read as a single document - an object opens as one expanded tree,
+  an array becomes one record per element.
 - **JSONL / NDJSON** (`.jsonl`, `.ndjson`): one collapsible JSON tree per record with a generated
   summary line. Malformed lines are reported instead of failing the file. Oversized files are read
   as a prefix rather than refused.

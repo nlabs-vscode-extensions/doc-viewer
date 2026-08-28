@@ -1,7 +1,7 @@
 {
   "name": "nlabs-doc-viewer",
   "displayName": "nLabs Document Viewer",
-  "description": "Preview PDF, Word, Excel, CSV, Markdown and JSONL documents inside VS Code. Zero runtime dependencies, no network access, no telemetry.",
+  "description": "Preview PDF, Word, Excel, CSV, Markdown and JSON/JSONL documents inside VS Code. Zero runtime dependencies, no network access, no telemetry.",
   "version": "0.1.0",
   "publisher": "nlabs",
   "icon": "images/icon.png",
@@ -125,6 +125,12 @@
           },
           {
             "filenamePattern": "*.ndjson"
+          },
+          {
+            "filenamePattern": "*.json"
+          },
+          {
+            "filenamePattern": "*.geojson"
           }
         ]
       }
@@ -165,7 +171,7 @@
       "explorer/context": [
         {
           "command": "nlabs-doc.open",
-          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx|csv|tsv|md|markdown|mdown|jsonl|ndjson)$/i",
+          "when": "resourceExtname =~ /^[.](pdf|docx|dotx|docm|xlsx|xlsm|xltx|csv|tsv|md|markdown|mdown|jsonl|ndjson|json|geojson)$/i",
           "group": "navigation@20"
         },
         {

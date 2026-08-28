@@ -34,6 +34,8 @@ export function parseDocument(
         case 'csv': return parseCsv(buf, name, limits);
         case 'pdf': return parsePdf(buf, name, limits);
         case 'markdown': return parseMarkdown(buf, name, limits, readAsset);
-        case 'jsonl': return parseJsonl(buf, name, limits);
+        // .json tek bir belgedir, .jsonl satir basina kayittir - hangisinin once
+        // denenecegi uzantiyla belirlenir, ikisi de digerine duser.
+        case 'jsonl': return parseJsonl(buf, name, limits, extension === '.json' || extension === '.geojson');
     }
 }

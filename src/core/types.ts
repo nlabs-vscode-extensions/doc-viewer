@@ -33,6 +33,8 @@ export const EXTENSION_KIND: Record<string, DocKind> = {
     '.mdown': 'markdown',
     '.jsonl': 'jsonl',
     '.ndjson': 'jsonl',
+    '.json': 'jsonl',
+    '.geojson': 'jsonl',
 };
 
 export function kindForPath(fsPath: string): DocKind | undefined {
