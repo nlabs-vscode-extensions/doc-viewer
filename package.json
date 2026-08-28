@@ -354,7 +354,7 @@
     "icon": "node scripts/make-icon.mjs",
     "smoke": "node scripts/smoke.mjs",
     "render-check": "node scripts/render-check.mjs",
-    "vscode:prepublish": "pnpm run compile",
+    "vscode:prepublish": "tsc -p ./ --sourceMap false",
     "package": "vsce package --no-dependencies",
     "publish": "vsce publish --no-dependencies"
   },
